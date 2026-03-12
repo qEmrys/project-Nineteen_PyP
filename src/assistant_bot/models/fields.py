@@ -73,12 +73,8 @@ class Birthday(Field):
         return self.value.strftime("%d.%m.%Y")
 
 class NoteContent(Field):
-    @property
-    def value(self):
-        return self._value
-    
-    @value.setter
-    def value(self, new_value):
-        if not new_value or not new_value.strip():
+
+    def __init__(self, value: str = ""):
+        if not value or not value.strip():
             raise ValidationError("Note content cannot be empty")
-        self._value = new_value.strip()
+        super().__init__(value.strip())
