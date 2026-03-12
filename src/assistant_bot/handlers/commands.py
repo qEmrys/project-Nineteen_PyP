@@ -4,6 +4,7 @@ from assistant_bot.models.record import Record
 from assistant_bot.utils.errors import NotFoundError, ValidationError
 from assistant_bot.utils.decorators import autosave
 from assistant_bot.storage.file_storage import save_data
+from assistant_bot.utils.colors import success, warning, header, dim
 
 @input_error
 def add_contact(args, data: AssistantData) -> str:
@@ -15,7 +16,7 @@ def add_contact(args, data: AssistantData) -> str:
         data.book.add_record(record)
     record.add_phone(phone)
 
-    return "Contact added."
+    return success("Contact added.")
 
 @input_error
 def change_contact(args, data: AssistantData) -> str:
@@ -30,7 +31,7 @@ def change_contact(args, data: AssistantData) -> str:
     else:
         record.add_phone(phone)
 
-    return "Contact updated."
+    return success("Contact updated.")
 
 @input_error
 def show_phone(args, data: AssistantData) -> str:
@@ -61,7 +62,7 @@ def add_birthday(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     record.add_birthday(birthday)
-    return "Birthday added."
+    return success("Birthday added.")
 
 @input_error
 def show_birthday(args, data: AssistantData) -> str:
@@ -87,14 +88,14 @@ def birthdays(args, data: AssistantData) -> str:
     upcoming_birthdays = data.book.get_upcoming_birthdays(days)
 
     if not upcoming_birthdays:
-        return f"No birthdays in the next {days} day(s)."
+        return warning(f"No birthdays in the next {days} day(s).")
 
-    header = f"Birthdays in the next {days} day(s):"
+    title = header(f"Birthdays in the next {days} day(s):")
     lines = [
         f"  {user['name']} ({user['birthday']}) — congrats on {user['congratulation_date']}"
         for user in upcoming_birthdays
     ]
-    return header + "\n" + "\n".join(lines)
+    return title + "\n" + "\n".join(lines)
 
 @input_error
 def add_note(args: list, data: AssistantData) -> str:
@@ -108,7 +109,7 @@ def add_note(args: list, data: AssistantData) -> str:
     content = " ".join(args)
 
     note = data.notes.add_note(content)
-    return f"Note added with id: {note.id}."
+    return success(f"Note added with id: {note.id}.")
 
 def _note_preview(note) -> str:
     #Returns a one-line preview: first 10 characters of content followed by '...'
@@ -123,14 +124,14 @@ def show_notes(args: list, data: AssistantData) -> str:
     # then prompts the user to enter the id of the note to display.
 
     if not data.notes.data:
-        return "No notes found."
+        return warning("No notes found.")
 
     # Print the list header and each note as: id - first 3 words...
-    print("\nList of Notes:")
-    print("-" * 30)
+    print(header("\nList of Notes:"))
+    print(dim("-" * 30))
     for note in data.notes.data.values():
         print(f"  {note.id} - {_note_preview(note)}")
-    print("-" * 30)
+    print(dim("-" * 30))
 
     # Prompt the user to put a note by id
     raw = input("Enter note id: ").strip()
@@ -149,7 +150,7 @@ def show_notes(args: list, data: AssistantData) -> str:
 
 def exit_command(_, data: AssistantData):
     save_data(data)
-    print("Good bye!")
+    print(success("Good bye!"))
     raise SystemExit
 
 

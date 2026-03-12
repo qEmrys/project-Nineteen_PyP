@@ -1,19 +1,23 @@
 from assistant_bot.storage.file_storage import load_data
 from assistant_bot.handlers.commands import COMMANDS, NOTE_COMMANDS
 from assistant_bot.utils.parser import parse_input
+from assistant_bot.utils.colors import header, info, error, prompt, success
 
 
 def main():
     assistant = load_data()
 
-    print("Welcome to the assistant bot!")
+    print(header("Welcome to the assistant bot!"))
+    print(info("Type 'hello' for a greeting or 'exit' to quit."))
 
     while True:
-        user_input = input("Enter a command: ")
+        user_input = input(prompt("Enter a command: "))
         command, args = parse_input(user_input)
         handler = COMMANDS.get(command)
 
         if handler:
-            print(handler(args, assistant))
+            result = handler(args, assistant)
+            if result is not None:
+                print(info(str(result)))
         else:
-            print("Invalid command.")
+            print(error("Invalid command."))
