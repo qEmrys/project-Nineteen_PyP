@@ -13,6 +13,12 @@ class Note:
         self.id = note_id
         self.content = NoteContent(content)
 
+    def short_view(self) -> str:
+        return f"{self.id}: {self.content}"
+
+    def edit_content(self, new_content: str):
+        self.content = NoteContent(new_content)
+
     def __str__(self) -> str:
         separator = "-" * 30
         return (
