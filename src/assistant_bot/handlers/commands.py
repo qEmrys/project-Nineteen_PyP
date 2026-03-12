@@ -20,29 +20,118 @@ def add_contact(args, book: AddressBook) -> str:
     return "Contact added."
 
 @input_error
+def add_email(args, book: AddressBook) -> str:
+    name, email = args
+    record: Record = book.find(name)
+
+    if record is None:
+        record = Record(name)
+        book.add_record(record)
+
+    record.add_email(email)
+
+    return "Email added."
+
+@input_error
+def change_email(args, book: AddressBook) -> str:
+    name, new_email = args
+    old_email = args[2] if len(args) > 2 else None
+    record: Record = book.find(name)
+
+    if record is None:
+        raise NotFoundError("Contact not found")
+
+    if record.emails:
+        record.edit_email(new_email, old_email)
+    else:
+        record.add_email(new_email)
+
+    return "Email updated."
+
+@input_error
+def remove_email(args, book: AddressBook) -> str:
+    name, email = args
+    record: Record = book.find(name)
+
+    if record is None:
+        raise NotFoundError("Contact not found")
+
+    record.remove_email(email)
+    return "Email removed."
+@input_error
+def add_address(args, book: AddressBook) -> str:
+    name, *address_parts = args
+    record: Record = book.find(name)
+
+    if record is None:
+        record = Record(name)
+        book.add_record(record)
+
+    record.add_address(address_parts)
+    return "Address added."
+
+@input_error
+def change_address(args, book: AddressBook) -> str:
+    name, *address_parts = args
+    record: Record = book.find(name)
+
+    if record is None:
+        raise NotFoundError("Contact not found")
+
+    
+    if record.address:
+        record.edit_address(address_parts)
+    else:
+        record.add_address(address_parts)
+
+    return "Address updated."
+@input_error
 def change_contact(args, book: AddressBook) -> str:
-    name, phone = args
+    name, new_phone = args
+    old_phone = args[2] if len(args) > 2 else None
     record: Record = book.find(name)
 
     if record is None:
         raise NotFoundError("Contact not found")
 
     if record.phones:
-        record.edit_phone(record.phones[0].value, phone)
+        record.edit_phone(new_phone, old_phone)
     else:
-        record.add_phone(phone)
+        record.add_phone(new_phone)
 
     return "Contact updated."
 
 @input_error
 def show_phone(args, book: AddressBook) -> str:
     name = args[0]
-    record: Record = book.find(name)
+    record = book.find(name)
 
     if record is None:
         raise NotFoundError("Contact not found")
 
     return f"{record.name.value}: {'; '.join(p.value for p in record.phones)}"
+@input_error
+def remove_phone(args, book: AddressBook) -> str:
+    name, phone = args
+    record: Record = book.find(name)
+
+    if record is None:
+        raise NotFoundError("Contact not found")
+
+    record.remove_phone(phone)
+    return "Phone removed."
+
+
+# Для пошуку по полям name, phone та email
+@input_error
+def find_record(args, book: AddressBook) -> str:
+    query = args[0]
+    results = book.find_by_name(query) or book.find_by_phone(query) or book.find_by_email(query)
+
+    if not results:
+        return "No matching contacts found."
+
+    return results
 
 @input_error
 def show_all(_, book: AddressBook) -> str:
@@ -100,13 +189,19 @@ COMMANDS = {
 
     "add": autosave(add_contact),
     "change": autosave(change_contact),
-
+    "find": find_record,
     "phone": show_phone,
     "all": show_all,
-
+    "add-email": autosave(add_email),
+    "change-email": autosave(change_email),
+    "remove-email": autosave(remove_email),
     "add-birthday": autosave(add_birthday),
 
     "show-birthday": show_birthday,
+    "add-address": autosave(add_address),
+    "change-address": autosave(change_address),
+    "remove-phone": autosave(remove_phone),
+    "remove-address": autosave(lambda args, book: book.find(args[0]).remove_address()),
     "birthdays": birthdays,
     "exit": exit_command,
     "close": exit_command,

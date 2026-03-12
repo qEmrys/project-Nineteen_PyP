@@ -8,6 +8,23 @@ class AddressBook(UserDict):
 
     def find(self, name):
         return self.data.get(name)
+    def find_by_name(self, name):
+        
+        for record in self.data.values():
+            
+            if record.name.value == name:
+                return record
+    def find_by_phone(self, phone):
+        
+        for record in self.data.values():
+            if phone in [p.value for p in record.phones]:
+                return record
+        
+    def find_by_email(self, email):
+        
+        for record in self.data.values():
+            if email in [e.value for e in record.emails]:
+                return record
 
     def delete(self, name):
         del self.data[name]
