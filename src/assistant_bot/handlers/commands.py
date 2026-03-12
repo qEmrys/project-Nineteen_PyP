@@ -1,7 +1,7 @@
 from assistant_bot.utils.decorators import input_error
 from assistant_bot.models.assistant_data import AssistantData
 from assistant_bot.models.record import Record
-from assistant_bot.utils.errors import NotFoundError
+from assistant_bot.utils.errors import NotFoundError, ValidationError
 from assistant_bot.utils.decorators import autosave
 from assistant_bot.storage.file_storage import save_data
 
@@ -77,15 +77,24 @@ def show_birthday(args, data: AssistantData) -> str:
     return record.birthday
 
 @input_error
-def birthdays(_, data: AssistantData) -> str:
-    upcoming_birthdays = data.book.get_upcoming_birthdays()
+def birthdays(args, data: AssistantData) -> str:
+    days = 7
+    if args:
+        if not args[0].isdigit():
+            raise ValidationError("Number of days must be a positive integer")
+        days = int(args[0])
+
+    upcoming_birthdays = data.book.get_upcoming_birthdays(days)
 
     if not upcoming_birthdays:
-        return "No upcoming birthdays found."
+        return f"No birthdays in the next {days} day(s)."
 
-    return "\n".join(
-        f"{user['name']} - {user['congratulation_date']}" for user in upcoming_birthdays
-    )
+    header = f"Birthdays in the next {days} day(s):"
+    lines = [
+        f"  {user['name']} ({user['birthday']}) — congrats on {user['congratulation_date']}"
+        for user in upcoming_birthdays
+    ]
+    return header + "\n" + "\n".join(lines)
 
 @input_error
 def add_note(args: list, data: AssistantData) -> str:

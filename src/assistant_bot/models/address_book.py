@@ -12,7 +12,7 @@ class AddressBook(UserDict):
     def delete(self, name):
         del self.data[name]
 
-    def get_upcoming_birthdays(self):
+    def get_upcoming_birthdays(self, days: int = 7):
         today = date.today()
         result = []
 
@@ -26,9 +26,9 @@ class AddressBook(UserDict):
             if birthday_this_year < today:
                 birthday_this_year = birthday_this_year.replace(year=today.year + 1)
 
-            days = (birthday_this_year - today).days
+            delta = (birthday_this_year - today).days
 
-            if 0 <= days <= 7:
+            if 0 <= delta <= days:
                 congratulation_date = birthday_this_year
 
                 if congratulation_date.weekday() >= 5:
@@ -40,6 +40,7 @@ class AddressBook(UserDict):
                     {
                         "name": record.name.value,
                         "congratulation_date": congratulation_date.strftime("%d.%m.%Y"),
+                        "birthday": birthday.strftime("%d.%m"),
                     }
                 )
 
