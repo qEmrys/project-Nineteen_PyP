@@ -18,8 +18,8 @@ def input_error(func):
     return inner
 
 def autosave(func):
-    def inner(args, book):
-        result = func(args, book)
-        save_data(book)
+    def inner(args, assistant):
+        result = func(args, assistant)
+        save_data(assistant)
         return result
     return inner
