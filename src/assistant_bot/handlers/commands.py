@@ -1,3 +1,5 @@
+from unicodedata import name
+
 from assistant_bot.utils.decorators import input_error
 from assistant_bot.models.address_book import AddressBook
 from assistant_bot.models.record import Record
@@ -34,17 +36,16 @@ def add_email(args, book: AddressBook) -> str:
 
 @input_error
 def change_email(args, book: AddressBook) -> str:
-    name, new_email = args
-    old_email = args[2] if len(args) > 2 else None
+    if len(args) != 3:
+        raise ValueError("Usage: change-email <name> <old_email> <new_email>")
+    
+    name, old_email, new_email = args
     record: Record = book.find(name)
 
     if record is None:
         raise NotFoundError("Contact not found")
 
-    if record.emails:
-        record.edit_email(new_email, old_email)
-    else:
-        record.add_email(new_email)
+    record.edit_email(old_email, new_email)
 
     return "Email updated."
 
@@ -103,6 +104,9 @@ def change_contact(args, book: AddressBook) -> str:
 
 @input_error
 def show_phone(args, book: AddressBook) -> str:
+    if not args:
+        raise ValueError("Usage: phone <name>")
+    
     name = args[0]
     record = book.find(name)
 
@@ -125,6 +129,9 @@ def remove_phone(args, book: AddressBook) -> str:
 # Для пошуку по полям name, phone та email
 @input_error
 def find_record(args, book: AddressBook) -> str:
+    if not args:
+        raise ValueError("Usage: find <query>")
+    
     query = args[0]
     results = book.find_by_name(query) or book.find_by_phone(query) or book.find_by_email(query)
 
@@ -156,6 +163,9 @@ def add_birthday(args, book: AddressBook) -> str:
 
 @input_error
 def show_birthday(args, book: AddressBook) -> str:
+    if not args:
+        raise ValueError("Usage: show-birthday <name>")
+
     name = args[0]
     record: Record = book.find(name)
 
