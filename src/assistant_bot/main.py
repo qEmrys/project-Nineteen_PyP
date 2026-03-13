@@ -1,5 +1,5 @@
 from assistant_bot.storage.file_storage import load_data
-from assistant_bot.handlers.commands import COMMANDS, NOTE_COMMANDS
+from assistant_bot.handlers.commands import COMMANDS
 from assistant_bot.utils.parser import parse_input
 from assistant_bot.utils.colors import header, info, error, prompt, success
 

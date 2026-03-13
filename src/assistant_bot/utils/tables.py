@@ -33,7 +33,7 @@ def print_contacts_table(records: list) -> None:
         birthday = (
             record.birthday.value.strftime("%d.%m.%Y") if record.birthday else "—"
         )
-        email = record.email.value if getattr(record, "email", None) else "—"
+        email = "; ".join(e.value for e in record.emails) if getattr(record, "emails", None) else "—"
         address = record.address.value if getattr(record, "address", None) else "—"
 
         table.add_row(str(idx), record.name.value, phones, birthday, email, address)
