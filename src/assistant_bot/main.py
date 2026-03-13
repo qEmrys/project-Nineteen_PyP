@@ -1,10 +1,11 @@
 from assistant_bot.storage.file_storage import load_data
-from assistant_bot.handlers.commands import COMMANDS
+from assistant_bot.handlers.commands import COMMANDS, NOTE_COMMANDS
 from assistant_bot.utils.parser import parse_input
 
 
 def main():
-    book = load_data()
+    assistant = load_data()
+
     print("Welcome to the assistant bot!")
 
     while True:
@@ -13,6 +14,6 @@ def main():
         handler = COMMANDS.get(command)
 
         if handler:
-            print(handler(args, book))
+            print(handler(args, assistant))
         else:
             print("Invalid command.")
