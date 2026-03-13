@@ -42,6 +42,25 @@ class NoteBook(UserDict):
             del self.data[note_id]
         else:
             raise NotFoundError(f"Note with id {note_id} not found")
+        
+    def get_all_tags(self) -> list[str]:
+        tags = set()
+        for note in self.data.values():
+            tags.update(note.tags)
+        return sorted(tags)
+
+    def search_by_tag(self, tag: str) -> list[Note]:
+        return [note for note in self.data.values() if tag.lower() in note.tags]
+    
+    def group_by_tags(self) -> dict[str, list[Note]]:
+        tag_groups: dict[str, list[Note]] = {}
+        for note in self.data.values():
+            if not note.tags:
+                tag_groups.setdefault("(no tags)", []).append(note)
+
+            for tag in note.tags:
+                tag_groups.setdefault(tag, []).append(note)
+        return tag_groups
 
     def __str__(self) -> str:
         if not self.data:
