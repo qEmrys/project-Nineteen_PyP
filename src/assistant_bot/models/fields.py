@@ -17,6 +17,33 @@ class Name(Field):
 
         super().__init__(value)
 
+class Address(Field):
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, new_value):
+        if not new_value:
+            raise ValidationError("Address cannot be empty")
+        self._value = new_value
+        
+        
+
+
+class Email(Field):
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        if not (isinstance(new_value, str) and re.match(pattern, new_value)):
+            raise ValidationError("Invalid email format. Use name@domain.com")
+
+        self._value = new_value
+
 
 class Address(Field):
     def __init__(self, value):

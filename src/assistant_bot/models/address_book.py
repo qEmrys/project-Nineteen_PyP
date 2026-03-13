@@ -8,6 +8,18 @@ class AddressBook(UserDict):
 
     def find(self, name):
         return self.data.get(name)
+    
+    def find_by_name(self, name):
+        # Пошук за іменем. Повертає список записів, які містять ім'я
+        return [record for record in self.data.values() if name.lower() in record.name.value.lower()]
+    
+    def find_by_phone(self, phone):
+        # Пошук за телефоном. Повертає список записів, які містять телефон
+        return [record for record in self.data.values() if any(phone in p.value for p in record.phones)]
+        
+    def find_by_email(self, email):
+        # Пошук за email. Повертає список записів, які містять email
+        return [record for record in self.data.values() if email in [e.value for e in record.emails]]
 
     def delete(self, name):
         del self.data[name]
