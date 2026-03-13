@@ -75,6 +75,18 @@ class Record:
     def add_birthday(self, birthday):
         self.birthday = Birthday(birthday)
 
+    def edit_birthday(self, new_birthday):
+        if self.birthday:
+            self.birthday.value = new_birthday
+        else:
+            raise NotFoundError("Birthday not found")
+
+    def remove_birthday(self):
+        if self.birthday:
+            self.birthday = None
+        else:
+            raise NotFoundError("Birthday not found")
+
     def __str__(self):
         phones = "; ".join(p.value for p in self.phones)
         birthday = (
