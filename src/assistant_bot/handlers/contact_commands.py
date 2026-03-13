@@ -1,13 +1,17 @@
-from assistant_bot.utils.decorators import input_error
 from assistant_bot.models.assistant_data import AssistantData
 from assistant_bot.models.record import Record
+from assistant_bot.utils.decorators import autosave, input_error
+from assistant_bot.utils.design import (
+    print_birthdays_table,
+    print_contact_panel,
+    print_contacts_table,
+    print_phones_table,
+    print_success,
+    print_warning,
+)
 from assistant_bot.utils.errors import NotFoundError, ValidationError
-from assistant_bot.utils.decorators import autosave
-from assistant_bot.storage.file_storage import save_data
-from assistant_bot.utils.design import print_warning, print_error, print_success
-from assistant_bot.utils.design import print_contact_panel, print_contacts_table, print_phones_table
-from assistant_bot.utils.design import print_birthdays_table, print_notes_table
-from assistant_bot.utils.design import print_note_detail, print_search_results, print_main_menu
+
+"""Contact management commands: add, show, find, all, remove, change-name, show-phone"""
 
 
 @input_error
@@ -23,6 +27,7 @@ def show_contact(args, data: AssistantData) -> None:
 
     print_contact_panel(record)
 
+
 @input_error
 def add_contact(args, data: AssistantData) -> str:
     if len(args) != 2:
@@ -32,14 +37,15 @@ def add_contact(args, data: AssistantData) -> str:
 
     if record is None:
         record = Record(name)
-    
+
     record.add_phone(phone)
-    
+
     if data.book.find(name) is None:
         data.book.add_record(record)
 
     print_success("Contact added.")
     return
+
 
 @input_error
 def remove_contact(args, data: AssistantData) -> str:
@@ -55,6 +61,7 @@ def remove_contact(args, data: AssistantData) -> str:
     data.book.delete(name)
     print_success("Contact removed.")
     return
+
 
 @input_error
 def change_name(args, data: AssistantData) -> str:
@@ -74,6 +81,10 @@ def change_name(args, data: AssistantData) -> str:
     print_success("Name updated.")
     return
 
+
+"""Email management commands: add-email, change-email, remove-email"""
+
+
 @input_error
 def add_email(args, data: AssistantData) -> str:
     if len(args) != 2:
@@ -89,6 +100,7 @@ def add_email(args, data: AssistantData) -> str:
 
     print_success("Email added.")
     return
+
 
 @input_error
 def change_email(args, data: AssistantData) -> str:
@@ -106,6 +118,7 @@ def change_email(args, data: AssistantData) -> str:
     print_success("Email updated.")
     return
 
+
 @input_error
 def remove_email(args, data: AssistantData) -> str:
     if len(args) != 2:
@@ -121,6 +134,10 @@ def remove_email(args, data: AssistantData) -> str:
     print_success("Email removed.")
     return
 
+
+"""Address management commands: add-address, change-address, remove-address"""
+
+
 @input_error
 def add_address(args, data: AssistantData) -> str:
     if len(args) < 2:
@@ -135,6 +152,7 @@ def add_address(args, data: AssistantData) -> str:
     record.add_address(address_parts)
     print_success("Address added.")
     return
+
 
 @input_error
 def change_address(args, data: AssistantData) -> str:
@@ -155,6 +173,7 @@ def change_address(args, data: AssistantData) -> str:
     print_success("Address updated.")
     return
 
+
 @input_error
 def remove_address(args, data: AssistantData) -> str:
     if len(args) != 1:
@@ -169,6 +188,10 @@ def remove_address(args, data: AssistantData) -> str:
     record.remove_address()
     print_success("Address removed.")
     return
+
+
+"""Phone management commands: show-phone, change-phone, remove-phone"""
+
 
 @input_error
 def change_phone(args, data: AssistantData) -> str:
@@ -188,6 +211,7 @@ def change_phone(args, data: AssistantData) -> str:
     print_success("Contact updated.")
     return
 
+
 @input_error
 def show_phone(args, data: AssistantData) -> str:
     if not args:
@@ -199,6 +223,7 @@ def show_phone(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     print_phones_table(record)
+
 
 @input_error
 def remove_phone(args, data: AssistantData) -> str:
@@ -215,7 +240,9 @@ def remove_phone(args, data: AssistantData) -> str:
     return
 
 
-# Для пошуку по полям name, phone та email
+"""Search commands: find, all"""
+
+
 @input_error
 def find_record(args, data: AssistantData) -> None:
     if not args:
@@ -234,6 +261,7 @@ def find_record(args, data: AssistantData) -> None:
 
     print_contacts_table(results)
 
+
 @input_error
 def show_all(_, data: AssistantData) -> None:
     if not data.book.data:
@@ -241,6 +269,10 @@ def show_all(_, data: AssistantData) -> None:
         return
 
     print_contacts_table(list(data.book.data.values()))
+
+
+"""Name management command: change-name"""
+
 
 @input_error
 def add_birthday(args, data: AssistantData) -> str:
@@ -257,6 +289,7 @@ def add_birthday(args, data: AssistantData) -> str:
     print_success("Birthday added.")
     return
 
+
 @input_error
 def show_birthday(args, data: AssistantData) -> str:
     if len(args) != 1:
@@ -272,6 +305,7 @@ def show_birthday(args, data: AssistantData) -> str:
         raise NotFoundError("Birthday not found")
 
     return record.birthday
+
 
 @input_error
 def change_birthday(args, data: AssistantData) -> str:
@@ -291,6 +325,7 @@ def change_birthday(args, data: AssistantData) -> str:
     print_success("Birthday updated.")
     return
 
+
 @input_error
 def remove_birthday(args, data: AssistantData) -> str:
     if len(args) != 1:
@@ -304,6 +339,7 @@ def remove_birthday(args, data: AssistantData) -> str:
     record.remove_birthday()
     print_success("Birthday removed.")
     return
+
 
 @input_error
 def birthdays(args, data: AssistantData) -> str:
@@ -320,192 +356,6 @@ def birthdays(args, data: AssistantData) -> str:
         return
 
     print_birthdays_table(upcoming_birthdays, days)
-
-@input_error
-def add_note(args: list, data: AssistantData) -> str:
-    if not args:
-        raise ValidationError("Usage: add-note <content>")
-
-    text_parts = []
-    tags = []
-
-    for arg in args:
-        if arg.startswith("#") and len(arg) > 1:
-            tags.append(arg[1:])
-        else:
-            text_parts.append(arg)
-
-    content = " ".join(text_parts)
-    note = data.notes.add_note(content)
-    
-    for tag in tags:
-        note.add_tag(tag)
-        
-    print_success(f"Note added with id: {note.id}.")
-    return
-
-@input_error
-def show_notes(args: list, data: AssistantData) -> str:
-
-    # Command: show-notes
-    # Prints a numbered list of all notes with a short preview
-
-    if not data.notes.data:
-        print_warning("No notes found.")
-        return
-
-    print_notes_table(list(data.notes.data.values()))
-
-@input_error
-def search_note(args: list, data: AssistantData) -> str:
-    if not args:
-        raise ValidationError("Usage: search-note <search string>")
-
-    search_str = " ".join(args)
-    found_notes = data.notes.find_by_content(search_str)
-
-    if not found_notes:
-        print_warning("No notes found matching the search criteria.")
-        return
-
-    print_search_results(found_notes, search_str)
-
-@input_error
-def search_note_by_id(args: list, data: AssistantData) -> str:
-    if not args:
-        raise ValidationError("Usage: search-note-by-id <id>")
-
-    try:
-        note_id = int(args[0])
-    except ValueError:
-        raise ValidationError("Note id must be a number.")
-
-    note = data.notes.find_by_id(note_id)
-
-    if not note:
-        print_warning("No note found with the given id.")
-        return
-
-    print_search_results([note], str(note_id))  
-
-@input_error
-def edit_note(args: list, data: AssistantData) -> str:
-    if len(args) < 2:
-        raise ValidationError("Usage: edit-note <id> <new content>")
-
-    try:
-        note_id = int(args[0])
-    except ValueError:
-        raise ValidationError("Note id must be a number.")
-
-    new_content = " ".join(args[1:])
-    note = data.notes.edit_note(note_id, new_content)
-
-    print_success(f"Note {note.id} updated.")
-    return
-
-@input_error
-def delete_note(args: list, data: AssistantData) -> str:
-    if len(args) != 1:
-        raise ValidationError("Usage: delete-note <id>")
-
-    try:
-        note_id = int(args[0])
-    except ValueError:
-        raise ValidationError("Note id must be a number.")
-
-    data.notes.delete_note(note_id)
-    print_success(f"Note {note_id} deleted.")
-    return
-
-@input_error
-def show_tags(args: list, data: AssistantData) -> str:
-    if args:
-        raise ValidationError("Usage: show-tags")
-
-    tags = data.notes.get_all_tags()
-
-    if not tags:
-        print_warning("No tags found.")
-        return
-
-    print_success("Tags:")
-    for tag in tags:
-        print(f"- {tag}")
-
-@input_error
-def add_tag(args: list, data: AssistantData) -> str:
-    if len(args) != 2:
-        raise ValidationError("Usage: add-tag <note_id> <tag>")
-
-    try:
-        note_id = int(args[0])
-    except ValueError:
-        raise ValidationError("Note id must be a number.")
-
-    tag = args[1]
-    note = data.notes.find_by_id(note_id)
-
-    if not note:
-        raise NotFoundError("Note not found.")
-
-    note.add_tag(tag)
-    print_success(f"Tag '{tag}' added to note {note_id}.")
-    return
-
-@input_error
-def remove_tag(args: list, data: AssistantData) -> str:
-    if len(args) != 2:
-        raise ValidationError("Usage: remove-tag <note_id> <tag>")
-
-    try:
-        note_id = int(args[0])
-    except ValueError:
-        raise ValidationError("Note id must be a number.")
-
-    tag = args[1]
-    note = data.notes.find_by_id(note_id)
-
-    if not note:
-        raise NotFoundError("Note not found.")
-
-    note.remove_tag(tag)
-    print_success(f"Tag '{tag}' removed from note {note_id}.")
-    return
-
-@input_error
-def search_note_by_tag(args: list, data: AssistantData) -> str:
-    if len(args) != 1:
-        raise ValidationError("Usage: search-tag <tag>")
-
-    tag = args[0]
-    found_notes = data.notes.search_by_tag(tag)
-
-    if not found_notes:
-        print_warning("No notes found with the given tag.")
-        return
-
-    print_search_results(found_notes, tag)
-
-@input_error
-def group_by_tags(args: list, data: AssistantData) -> None:
-    if args:
-        raise ValidationError("Usage: group-tags")
-
-    tag_groups = data.notes.group_by_tags()
-
-    if not tag_groups:
-        print_warning("No notes found.")
-        return
-
-    for tag, notes in sorted(tag_groups.items()):
-        print_success(f"Tag: {tag}")
-        print_notes_table(notes)
-
-def exit_command(_, data: AssistantData):
-    save_data(data)
-    print_success("Good bye!")
-    raise SystemExit
 
 
 CONTACT_COMMANDS = {
@@ -529,31 +379,4 @@ CONTACT_COMMANDS = {
     "change-address": autosave(change_address),
     "remove-address": autosave(remove_address),
     "birthdays": birthdays,
-}
-
-NOTE_COMMANDS = {
-    "add-note": autosave(add_note),
-    "show-notes": show_notes,
-    "search-note": search_note,
-    "search-note-by-id": search_note_by_id,
-    "edit-note": autosave(edit_note),
-    "delete-note": autosave(delete_note),
-    "show-tags": show_tags,
-    "add-tag": autosave(add_tag),
-    "remove-tag": autosave(remove_tag),
-    "search-tag": search_note_by_tag,
-    "group-tags": group_by_tags,
-}
-
-SYSTEM_COMMANDS = {
-    "hello": lambda _, __: "How can I help you?",
-    "help": lambda _args, _data: print_main_menu() or None,
-    "exit": exit_command,
-    "close": exit_command,
-}
-
-COMMANDS = {
-    **SYSTEM_COMMANDS,
-    **CONTACT_COMMANDS,
-    **NOTE_COMMANDS,
 }
