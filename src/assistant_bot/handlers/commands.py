@@ -340,29 +340,13 @@ def add_note(args: list, data: AssistantData) -> str:
 def show_notes(args: list, data: AssistantData) -> str:
 
     # Command: show-notes
-    # Prints a numbered list of all notes with a short preview,
-    # then prompts the user to enter the id of the note to display.
+    # Prints a numbered list of all notes with a short preview
 
     if not data.notes.data:
         print_warning("No notes found.")
         return
 
     print_notes_table(list(data.notes.data.values()))
-
-    raw = input("Enter note id: ").strip()
-
-    try:
-        note_id = int(raw)
-    except ValueError:
-        print_warning("Note id must be a number.")
-        return
-
-    note = data.notes.find_by_id(note_id)
-
-    if note is None:
-        raise NotFoundError(f"Note with id {note_id} not found")
-
-    print_note_detail(note)
 
 @input_error
 def search_note(args: list, data: AssistantData) -> str:
@@ -377,6 +361,24 @@ def search_note(args: list, data: AssistantData) -> str:
         return
 
     print_search_results(found_notes, search_str)
+
+@input_error
+def search_note_by_id(args: list, data: AssistantData) -> str:
+    if not args:
+        raise ValidationError("Usage: search-note-by-id <id>")
+
+    try:
+        note_id = int(args[0])
+    except ValueError:
+        raise ValidationError("Note id must be a number.")
+
+    note = data.notes.find_by_id(note_id)
+
+    if not note:
+        print_warning("No note found with the given id.")
+        return
+
+    print_search_results([note], str(note_id))  
 
 @input_error
 def edit_note(args: list, data: AssistantData) -> str:
@@ -441,6 +443,7 @@ NOTE_COMMANDS = {
     "add-note": autosave(add_note),
     "show-notes": show_notes,
     "search-note": search_note,
+    "search-note-by-id": search_note_by_id,
     "edit-note": autosave(edit_note),
     "delete-note": autosave(delete_note),
 }
