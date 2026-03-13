@@ -4,7 +4,11 @@ from assistant_bot.models.record import Record
 from assistant_bot.utils.errors import NotFoundError, ValidationError
 from assistant_bot.utils.decorators import autosave
 from assistant_bot.storage.file_storage import save_data
-from assistant_bot.utils.colors import success, warning, header, dim
+from assistant_bot.utils.colors import success
+from assistant_bot.utils.tables import print_warning
+from assistant_bot.utils.tables import print_contacts_table, print_phones_table
+from assistant_bot.utils.tables import print_birthdays_table, print_notes_table
+from assistant_bot.utils.tables import print_note_detail, print_search_results
 
 @input_error
 def add_contact(args, data: AssistantData) -> str:
@@ -34,24 +38,22 @@ def change_contact(args, data: AssistantData) -> str:
     return success("Contact updated.")
 
 @input_error
-def show_phone(args, data: AssistantData) -> str:
+def show_phone(args, data: AssistantData) -> None:
     name = args[0]
     record: Record = data.book.find(name)
 
     if record is None:
         raise NotFoundError("Contact not found")
 
-    return f"{record.name.value}: {'; '.join(p.value for p in record.phones)}"
+    print_phones_table(record)
 
 @input_error
-def show_all(_, data: AssistantData) -> str:
+def show_all(_, data: AssistantData) -> None:
     if not data.book.data:
-        return "No contacts found."
+        print_warning("No contacts found.")
+        return
 
-    return "\n".join(
-        f"{record.name.value}: {'; '.join(p.value for p in record.phones)}"
-        for record in data.book.data.values()
-    )
+    print_contacts_table(list(data.book.data.values()))
 
 @input_error
 def add_birthday(args, data: AssistantData) -> str:
@@ -88,14 +90,10 @@ def birthdays(args, data: AssistantData) -> str:
     upcoming_birthdays = data.book.get_upcoming_birthdays(days)
 
     if not upcoming_birthdays:
-        return warning(f"No birthdays in the next {days} day(s).")
+        print_warning(f"No birthdays in the next {days} day(s).")
+        return
 
-    title = header(f"Birthdays in the next {days} day(s):")
-    lines = [
-        f"  {user['name']} ({user['birthday']}) — congrats on {user['congratulation_date']}"
-        for user in upcoming_birthdays
-    ]
-    return title + "\n" + "\n".join(lines)
+    print_birthdays_table(upcoming_birthdays, days)
 
 @input_error
 def add_note(args: list, data: AssistantData) -> str:
@@ -104,17 +102,12 @@ def add_note(args: list, data: AssistantData) -> str:
     # All words after the command become the note content.
     # ID is assigned automatically as a sequential number.
     if not args:
-        raise ValueError
+        raise ValidationError("Usage: add-note <content>")
 
     content = " ".join(args)
 
     note = data.notes.add_note(content)
     return success(f"Note added with id: {note.id}.")
-
-def _note_preview(note) -> str:
-    #Returns a one-line preview: first 10 characters of content followed by '...'
-    text = note.content.value
-    return f"{text[:10]}..." if len(text) > 10 else text
 
 @input_error
 def show_notes(args: list, data: AssistantData) -> str:
@@ -124,29 +117,70 @@ def show_notes(args: list, data: AssistantData) -> str:
     # then prompts the user to enter the id of the note to display.
 
     if not data.notes.data:
-        return warning("No notes found.")
+        print_warning("No notes found.")
+        return
 
-    # Print the list header and each note as: id - first 3 words...
-    print(header("\nList of Notes:"))
-    print(dim("-" * 30))
-    for note in data.notes.data.values():
-        print(f"  {note.id} - {_note_preview(note)}")
-    print(dim("-" * 30))
+    print_notes_table(list(data.notes.data.values()))
 
-    # Prompt the user to put a note by id
-    raw = input("Enter note id: ").strip()
+    # Prompt the user to view a note by id
+    raw = input("Enter note id (or press Enter to cancel): ").strip()
+    if not raw:
+        return
 
     try:
         note_id = int(raw)
     except ValueError:
-        return "Note id must be a number."
+        print_warning("Note id must be a number.")
+        return
 
-    note = data.notes.find(note_id)
+    note = data.notes.find_by_id(note_id)
 
     if note is None:
         raise NotFoundError(f"Note with id {note_id} not found")
 
-    return str(note)
+    print_note_detail(note)
+
+@input_error
+def search_note(args: list, data: AssistantData) -> None:
+    if not args:
+        raise ValidationError("Usage: search-note <search string>")
+
+    search_str = " ".join(args)
+    found_notes = data.notes.find_by_content(search_str)
+
+    if not found_notes:
+        print_warning("No notes found matching the search criteria.")
+        return
+
+    print_search_results(found_notes, search_str)
+
+@input_error
+def edit_note(args: list, data: AssistantData) -> str:
+    if len(args) < 2:
+        raise ValidationError("Usage: edit-note <id> <new content>")
+
+    try:
+        note_id = int(args[0])
+    except ValueError:
+        raise ValidationError("Note id must be a number.")
+
+    new_content = " ".join(args[1:])
+    note = data.notes.edit_note(note_id, new_content)
+
+    return f"Note {note.id} updated."
+
+@input_error
+def delete_note(args: list, data: AssistantData) -> str:
+    if len(args) != 1:
+        raise ValidationError("Usage: delete-note <id>")
+
+    try:
+        note_id = int(args[0])
+    except ValueError:
+        raise ValidationError("Note id must be a number.")
+
+    data.notes.delete_note(note_id)
+    return f"Note {note_id} deleted."
 
 def exit_command(_, data: AssistantData):
     save_data(data)
@@ -167,6 +201,9 @@ CONTACT_COMMANDS = {
 NOTE_COMMANDS = {
     "add-note": autosave(add_note),
     "show-notes": show_notes,
+    "search-note": search_note,
+    "edit-note": autosave(edit_note),
+    "delete-note": autosave(delete_note),
 }
 
 SYSTEM_COMMANDS = {
