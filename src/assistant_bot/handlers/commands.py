@@ -133,12 +133,16 @@ def find_record(args, book: AddressBook) -> str:
         raise ValueError("Usage: find <query>")
     
     query = args[0]
-    results = book.find_by_name(query) or book.find_by_phone(query) or book.find_by_email(query)
+    results = (
+        book.find_by_name(query)
+        + book.find_by_phone(query)
+        + book.find_by_email(query)
+    )
 
     if not results:
         return "No matching contacts found."
 
-    return results
+    return "\n".join(str(record) for record in results)
 
 @input_error
 def show_all(_, book: AddressBook) -> str:
