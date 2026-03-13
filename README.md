@@ -144,20 +144,35 @@ show John
 
 ### Команди нотаток
 
+#### Нотатки
+
 | Команда | Аргументи | Опис |
 |---------|-----------|------|
-| `add-note` | `<content...>` | Створити нову нотатку (ID присвоюється автоматично) |
+| `add-note` | `<content...>` | Створити нову нотатку (ID присвоюється автоматично). Підтримує теги через `#tag` |
 | `show-notes` | — | Показати список усіх нотаток з попереднім переглядом, потім запитати ID для повного перегляду |
 | `search-note` | `<query...>` | Знайти нотатки, що містять рядок пошуку |
 | `edit-note` | `<id> <new content...>` | Замінити вміст нотатки |
 | `delete-note` | `<id>` | Остаточно видалити нотатку |
 
+#### Теги
+
+| Команда | Аргументи | Опис |
+|---------|-----------|------|
+| `show-tags` | — | Показати список усіх доступних тегів |
+| `add-tag` | `<id> <tag>` | Додати тег до нотатки |
+| `remove-tag` | `<id> <tag>` | Видалити тег з нотатки |
+| `search-tag` | `<tag>` | Показати всі нотатки з вказаним тегом |
+| `group-tags` | — | Згрупувати нотатки за тегами |
+
 **Приклади:**
 
 ```
 add-note Зателефонувати Алісі завтра
+add-note Купити молоко #shopping #home
 show-notes
 search-note Аліса
+search-tag shopping
+group-tags
 edit-note 1 Зателефонувати Алісі у п'ятницю
 delete-note 1
 ```
@@ -189,23 +204,31 @@ delete-note 1
 ## Структура проєкту
 
 ```
-run.py                          # Точка входу
+run.py                          # Точка входу (запускає CLI)
+data/
+└── assistant.pkl               # Файл збережених даних (pickle)
 src/
 └── assistant_bot/
-    ├── main.py                 # Головний цикл (REPL)
+    ├── __init__.py
+    ├── main.py                 # Головний цикл CLI (REPL)
     ├── handlers/
-    │   └── commands.py         # Усі обробники команд + словник COMMANDS
+    │   ├── commands_registry.py # Реєстрація та об'єднання всіх команд
+    │   ├── contact_commands.py  # Команди для роботи з контактами
+    │   ├── note_commands.py     # Команди для нотаток та тегів
+    │   └── system_commands.py   # Системні команди (help, exit тощо)
     ├── models/
-    │   ├── fields.py           # Класи полів з валідацією (Name, Phone, Email, Address, Birthday, NoteContent)
-    │   ├── record.py           # Модель запису контакту
-    │   ├── address_book.py     # Контейнер AddressBook
-    │   ├── note_book.py        # Контейнер NoteBook
-    │   └── assistant_data.py   # Обгортка AssistantData (AddressBook + NoteBook)
+    │   ├── fields.py           # Класи полів з валідацією
+    │   │                       # (Name, Phone, Email, Address, Birthday, NoteContent)
+    │   ├── record.py           # Модель контакту (Record)
+    │   ├── address_book.py     # Контейнер AddressBook (колекція контактів)
+    │   ├── note.py             # Модель нотатки (Note: id, content, tags)
+    │   ├── note_book.py        # Контейнер NoteBook (колекція нотаток)
+    │   └── assistant_data.py   # Об'єднана модель даних (AddressBook + NoteBook)
     ├── storage/
-    │   └── file_storage.py     # Завантаження/збереження через pickle
+    │   └── file_storage.py     # Завантаження і збереження даних через pickle
     └── utils/
-        ├── decorators.py       # Декоратори @input_error, @autosave
-        ├── design.py           # Допоміжні функції для виводу через Rich
-        ├── errors.py           # ValidationError, NotFoundError
-        └── parser.py           # Розбір введення користувача
+        ├── decorators.py       # Декоратори (@input_error, @autosave)
+        ├── design.py           # UI-вивід через Rich (таблиці, панелі)
+        ├── errors.py           # Користувацькі винятки (ValidationError, NotFoundError)
+        └── parser.py           # Парсер команд користувача
 ```
