@@ -4,15 +4,14 @@ from assistant_bot.models.record import Record
 from assistant_bot.utils.errors import NotFoundError, ValidationError
 from assistant_bot.utils.decorators import autosave
 from assistant_bot.storage.file_storage import save_data
-from assistant_bot.utils.colors import success, error, warning
-from assistant_bot.utils.tables import print_warning
-from assistant_bot.utils.tables import print_contacts_table, print_phones_table
-from assistant_bot.utils.tables import print_birthdays_table, print_notes_table
-from assistant_bot.utils.tables import print_note_detail, print_search_results
+from assistant_bot.utils.design import print_warning, print_error, print_success
+from assistant_bot.utils.design import print_contact_panel, print_contacts_table, print_phones_table
+from assistant_bot.utils.design import print_birthdays_table, print_notes_table
+from assistant_bot.utils.design import print_note_detail, print_search_results
 
 
 @input_error
-def show_contact(args, data: AssistantData) -> str:
+def show_contact(args, data: AssistantData) -> None:
     if not args:
         raise ValidationError("Usage: show <name>")
 
@@ -22,7 +21,7 @@ def show_contact(args, data: AssistantData) -> str:
     if record is None:
         raise NotFoundError("Contact not found")
 
-    return str(record)
+    print_contact_panel(record)
 
 @input_error
 def add_contact(args, data: AssistantData) -> str:
@@ -34,7 +33,8 @@ def add_contact(args, data: AssistantData) -> str:
         data.book.add_record(record)
     record.add_phone(phone)
 
-    return success("Contact added.")
+    print_success("Contact added.")
+    return
 
 @input_error
 def remove_contact(args, data: AssistantData) -> str:
@@ -48,7 +48,8 @@ def remove_contact(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     data.book.delete(name)
-    return success("Contact removed.")
+    print_success("Contact removed.")
+    return
 
 @input_error
 def change_name(args, data: AssistantData) -> str:
@@ -65,7 +66,8 @@ def change_name(args, data: AssistantData) -> str:
     record.name.value = new_name
     data.book.add_record(record)
 
-    return success("Name updated.")
+    print_success("Name updated.")
+    return
 
 @input_error
 def add_email(args, data: AssistantData) -> str:
@@ -77,13 +79,14 @@ def add_email(args, data: AssistantData) -> str:
         data.book.add_record(record)
     record.add_email(email)
 
-    return success("Email added.")
+    print_success("Email added.")
+    return
 
 @input_error
 def change_email(args, data: AssistantData) -> str:
     if len(args) != 3:
         raise ValidationError("Usage: change-email <name> <old_email> <new_email>")
-    
+
     name, old_email, new_email = args
     record: Record = data.book.find(name)
 
@@ -92,7 +95,8 @@ def change_email(args, data: AssistantData) -> str:
 
     record.edit_email(old_email, new_email)
 
-    return success("Email updated.")
+    print_success("Email updated.")
+    return
 
 @input_error
 def remove_email(args, data: AssistantData) -> str:
@@ -103,7 +107,8 @@ def remove_email(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     record.remove_email(email)
-    return success("Email removed.")
+    print_success("Email removed.")
+    return
 
 @input_error
 def add_address(args, data: AssistantData) -> str:
@@ -114,7 +119,8 @@ def add_address(args, data: AssistantData) -> str:
         record = Record(name)
         data.book.add_record(record)
     record.add_address(address_parts)
-    return success("Address added.")
+    print_success("Address added.")
+    return
 
 @input_error
 def change_address(args, data: AssistantData) -> str:
@@ -129,7 +135,8 @@ def change_address(args, data: AssistantData) -> str:
     else:
         record.add_address(address_parts)
 
-    return success("Address updated.")
+    print_success("Address updated.")
+    return
 
 @input_error
 def remove_address(args, data: AssistantData) -> str:
@@ -140,7 +147,8 @@ def remove_address(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     record.remove_address()
-    return success("Address removed.")
+    print_success("Address removed.")
+    return
 
 @input_error
 def change_phone(args, data: AssistantData) -> str:
@@ -155,7 +163,8 @@ def change_phone(args, data: AssistantData) -> str:
     else:
         record.add_phone(new_phone)
 
-    return success("Contact updated.")
+    print_success("Contact updated.")
+    return
 
 @input_error
 def show_phone(args, data: AssistantData) -> str:
@@ -177,15 +186,16 @@ def remove_phone(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     record.remove_phone(phone)
-    return success("Phone removed.")
+    print_success("Phone removed.")
+    return
 
 
 # Для пошуку по полям name, phone та email
 @input_error
-def find_record(args, data: AssistantData) -> str:
+def find_record(args, data: AssistantData) -> None:
     if not args:
         raise ValidationError("Usage: find <query>")
-    
+
     query = args[0]
     results = (
         data.book.find_by_name(query)
@@ -194,14 +204,16 @@ def find_record(args, data: AssistantData) -> str:
     )
 
     if not results:
-        return error("No matching contacts found.")
+        print_warning("No matching contacts found.")
+        return
 
-    return "\n".join(str(record) for record in results)
+    print_contacts_table(results)
 
 @input_error
-def show_all(_, data: AssistantData) -> str:
+def show_all(_, data: AssistantData) -> None:
     if not data.book.data:
-        return warning("No contacts found.")
+        print_warning("No contacts found.")
+        return
 
     print_contacts_table(list(data.book.data.values()))
 
@@ -214,7 +226,8 @@ def add_birthday(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     record.add_birthday(birthday)
-    return success("Birthday added.")
+    print_success("Birthday added.")
+    return
 
 @input_error
 def show_birthday(args, data: AssistantData) -> str:
@@ -242,7 +255,8 @@ def change_birthday(args, data: AssistantData) -> str:
     else:
         record.add_birthday(new_birthday)
 
-    return success("Birthday updated.")
+    print_success("Birthday updated.")
+    return
 
 @input_error
 def remove_birthday(args, data: AssistantData) -> str:
@@ -253,7 +267,8 @@ def remove_birthday(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     record.remove_birthday()
-    return success("Birthday removed.")
+    print_success("Birthday removed.")
+    return
 
 @input_error
 def birthdays(args, data: AssistantData) -> str:
@@ -266,7 +281,8 @@ def birthdays(args, data: AssistantData) -> str:
     upcoming_birthdays = data.book.get_upcoming_birthdays(days)
 
     if not upcoming_birthdays:
-        return warning(f"No birthdays in the next {days} day(s).")
+        print_warning(f"No birthdays in the next {days} day(s).")
+        return
 
     print_birthdays_table(upcoming_birthdays, days)
 
@@ -282,7 +298,8 @@ def add_note(args: list, data: AssistantData) -> str:
     content = " ".join(args)
 
     note = data.notes.add_note(content)
-    return success(f"Note added with id: {note.id}.")
+    print_success(f"Note added with id: {note.id}.")
+    return
 
 @input_error
 def show_notes(args: list, data: AssistantData) -> str:
@@ -292,7 +309,8 @@ def show_notes(args: list, data: AssistantData) -> str:
     # then prompts the user to enter the id of the note to display.
 
     if not data.notes.data:
-        return warning("No notes found.")
+        print_warning("No notes found.")
+        return
 
     print_notes_table(list(data.notes.data.values()))
 
@@ -301,7 +319,8 @@ def show_notes(args: list, data: AssistantData) -> str:
     try:
         note_id = int(raw)
     except ValueError:
-        return warning("Note id must be a number.")
+        print_warning("Note id must be a number.")
+        return
 
     note = data.notes.find_by_id(note_id)
 
@@ -319,7 +338,8 @@ def search_note(args: list, data: AssistantData) -> str:
     found_notes = data.notes.find_by_content(search_str)
 
     if not found_notes:
-        return warning("No notes found matching the search criteria.")
+        print_warning("No notes found matching the search criteria.")
+        return
 
     print_search_results(found_notes, search_str)
 
@@ -336,7 +356,8 @@ def edit_note(args: list, data: AssistantData) -> str:
     new_content = " ".join(args[1:])
     note = data.notes.edit_note(note_id, new_content)
 
-    return success(f"Note {note.id} updated.")
+    print_success(f"Note {note.id} updated.")
+    return
 
 @input_error
 def delete_note(args: list, data: AssistantData) -> str:
@@ -349,11 +370,12 @@ def delete_note(args: list, data: AssistantData) -> str:
         raise ValidationError("Note id must be a number.")
 
     data.notes.delete_note(note_id)
-    return success(f"Note {note_id} deleted.")
+    print_success(f"Note {note_id} deleted.")
+    return
 
 def exit_command(_, data: AssistantData):
     save_data(data)
-    print(success("Good bye!"))
+    print_success("Good bye!")
     raise SystemExit
 
 

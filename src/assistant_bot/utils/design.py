@@ -12,6 +12,40 @@ def print_warning(text: str) -> None:
     console.print(f"[bold yellow]{text}[/bold yellow]")
 
 
+def print_error(text: str) -> None:
+    """Print an error message using red markup."""
+    console.print(f"[bold red]{text}[/bold red]")
+
+
+def print_success(text: str) -> None:
+    """Print a success message using green markup."""
+    console.print(f"[bold green]{text}[/bold green]")
+
+
+def print_contact_panel(record) -> None:
+    """Render a single contact's full details in a rich panel."""
+    phones = "\n".join(p.value for p in record.phones) if record.phones else "—"
+    birthday = (
+        record.birthday.value.strftime("%d.%m.%Y") if record.birthday else "—"
+    )
+    emails = "\n".join(e.value for e in record.emails) if getattr(record, "emails", None) else "—"
+    address = record.address.value if getattr(record, "address", None) else "—"
+
+    content = (
+        f"[cyan]Phones:[/cyan]   {phones}\n"
+        f"[cyan]Birthday:[/cyan] {birthday}\n"
+        f"[cyan]Email:[/cyan]    {emails}\n"
+        f"[cyan]Address:[/cyan]  {address}"
+    )
+    panel = Panel(
+        content,
+        title=f"[bold magenta]{record.name.value}[/bold magenta]",
+        border_style="cyan",
+        padding=(1, 2),
+    )
+    console.print(panel)
+
+
 def print_contacts_table(records: list) -> None:
     """Render all contacts as a table."""
     table = Table(

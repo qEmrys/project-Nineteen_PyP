@@ -1,6 +1,6 @@
 from assistant_bot.utils.errors import ValidationError, NotFoundError
 from assistant_bot.storage.file_storage import save_data
-from assistant_bot.utils.colors import error as color_error
+from assistant_bot.utils.design import console
 
 
 def input_error(func):
@@ -8,13 +8,13 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
         except ValidationError as e:
-            return color_error(str(e))
+            console.print(f"[bold red]{e}[/bold red]")
         except NotFoundError as e:
-            return color_error(str(e))
+            console.print(f"[bold red]{e}[/bold red]")
         except (ValueError, IndexError):
-            return color_error("Invalid command format.")
+            console.print("[bold red]Invalid command format.[/bold red]")
         except Exception as e:
-            return color_error(f"Unexpected error: {e}")
+            console.print(f"[bold red]Unexpected error: {e}[/bold red]")
 
     return inner
 
