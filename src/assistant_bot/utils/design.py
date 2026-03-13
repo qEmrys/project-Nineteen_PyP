@@ -29,7 +29,7 @@ def print_contact_panel(record) -> None:
         record.birthday.value.strftime("%d.%m.%Y") if record.birthday else "—"
     )
     emails = "\n".join(e.value for e in record.emails) if getattr(record, "emails", None) else "—"
-    address = record.address.value if getattr(record, "address", None) else "—"
+    address = " ".join(record.address.value) if getattr(record, "address", None) else "—"
 
     content = (
         f"[cyan]Phones:[/cyan]   {phones}\n"
@@ -68,7 +68,7 @@ def print_contacts_table(records: list) -> None:
             record.birthday.value.strftime("%d.%m.%Y") if record.birthday else "—"
         )
         email = "; ".join(e.value for e in record.emails) if getattr(record, "emails", None) else "—"
-        address = record.address.value if getattr(record, "address", None) else "—"
+        address = " ".join(record.address.value) if getattr(record, "address", None) else "—"
 
         table.add_row(str(idx), record.name.value, phones, birthday, email, address)
 

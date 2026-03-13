@@ -25,6 +25,8 @@ def show_contact(args, data: AssistantData) -> None:
 
 @input_error
 def add_contact(args, data: AssistantData) -> str:
+    if len(args) != 2:
+        raise ValidationError("Usage: add <name> <phone>")
     name, phone = args
     record = data.book.find(name)
 
@@ -74,6 +76,9 @@ def change_name(args, data: AssistantData) -> str:
 
 @input_error
 def add_email(args, data: AssistantData) -> str:
+    if len(args) != 2:
+        raise ValidationError("Usage: add-email <name> <email>")
+
     name, email = args
     record: Record = data.book.find(name)
 
@@ -103,6 +108,9 @@ def change_email(args, data: AssistantData) -> str:
 
 @input_error
 def remove_email(args, data: AssistantData) -> str:
+    if len(args) != 2:
+        raise ValidationError("Usage: remove-email <name> <email>")
+
     name, email = args
     record: Record = data.book.find(name)
 
@@ -115,6 +123,9 @@ def remove_email(args, data: AssistantData) -> str:
 
 @input_error
 def add_address(args, data: AssistantData) -> str:
+    if len(args) < 2:
+        raise ValidationError("Usage: add-address <name> <address>")
+
     name, *address_parts = args
     record: Record = data.book.find(name)
 
@@ -127,6 +138,9 @@ def add_address(args, data: AssistantData) -> str:
 
 @input_error
 def change_address(args, data: AssistantData) -> str:
+    if len(args) < 2:
+        raise ValidationError("Usage: change-address <name> <address>")
+
     name, *address_parts = args
     record: Record = data.book.find(name)
 
@@ -143,6 +157,9 @@ def change_address(args, data: AssistantData) -> str:
 
 @input_error
 def remove_address(args, data: AssistantData) -> str:
+    if len(args) != 1:
+        raise ValidationError("Usage: remove-address <name>")
+
     name = args[0]
     record: Record = data.book.find(name)
 
@@ -185,6 +202,9 @@ def show_phone(args, data: AssistantData) -> str:
 
 @input_error
 def remove_phone(args, data: AssistantData) -> str:
+    if len(args) != 2:
+        raise ValidationError("Usage: remove-phone <name> <phone>")
+
     name, phone = args
     record: Record = data.book.find(name)
     if record is None:
@@ -224,6 +244,9 @@ def show_all(_, data: AssistantData) -> None:
 
 @input_error
 def add_birthday(args, data: AssistantData) -> str:
+    if len(args) != 2:
+        raise ValidationError("Usage: add-birthday <name> <birthday>")
+
     name, birthday = args
     record: Record = data.book.find(name)
 
@@ -236,6 +259,9 @@ def add_birthday(args, data: AssistantData) -> str:
 
 @input_error
 def show_birthday(args, data: AssistantData) -> str:
+    if len(args) != 1:
+        raise ValidationError("Usage: show-birthday <name>")
+
     name = args[0]
     record: Record = data.book.find(name)
 
@@ -249,6 +275,8 @@ def show_birthday(args, data: AssistantData) -> str:
 
 @input_error
 def change_birthday(args, data: AssistantData) -> str:
+    if len(args) != 2:
+        raise ValidationError("Usage: change-birthday <name> <birthday>")
     name, new_birthday = args
     record: Record = data.book.find(name)
 
@@ -265,6 +293,8 @@ def change_birthday(args, data: AssistantData) -> str:
 
 @input_error
 def remove_birthday(args, data: AssistantData) -> str:
+    if len(args) != 1:
+        raise ValidationError("Usage: remove-birthday <name>")
     name = args[0]
     record: Record = data.book.find(name)
 
