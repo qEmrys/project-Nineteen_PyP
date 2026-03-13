@@ -7,7 +7,7 @@ from assistant_bot.storage.file_storage import save_data
 from assistant_bot.utils.design import print_warning, print_error, print_success
 from assistant_bot.utils.design import print_contact_panel, print_contacts_table, print_phones_table
 from assistant_bot.utils.design import print_birthdays_table, print_notes_table
-from assistant_bot.utils.design import print_note_detail, print_search_results
+from assistant_bot.utils.design import print_note_detail, print_search_results, print_main_menu
 
 
 @input_error
@@ -450,6 +450,7 @@ NOTE_COMMANDS = {
 
 SYSTEM_COMMANDS = {
     "hello": lambda _, __: "How can I help you?",
+    "help": lambda _args, _data: print_main_menu() or None,
     "exit": exit_command,
     "close": exit_command,
 }
