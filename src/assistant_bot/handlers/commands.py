@@ -5,6 +5,20 @@ from assistant_bot.utils.errors import NotFoundError, ValidationError
 from assistant_bot.utils.decorators import autosave
 from assistant_bot.storage.file_storage import save_data
 
+
+@input_error
+def show_contact(args, data: AssistantData) -> str:
+    if not args:
+        raise ValidationError("Usage: show <name>")
+    
+    name = args[0]
+    record: Record = data.book.find(name)
+
+    if record is None:
+        raise NotFoundError("Contact not found")
+
+    return str(record)
+
 @input_error
 def add_contact(args, data: AssistantData) -> str:
     name, phone = args
@@ -16,6 +30,37 @@ def add_contact(args, data: AssistantData) -> str:
     record.add_phone(phone)
 
     return "Contact added."
+
+@input_error
+def remove_contact(args, data: AssistantData) -> str:
+    if not args:
+        raise ValidationError("Usage: remove <name>")
+    
+    name = args[0]
+    record: Record = data.book.find(name)
+
+    if record is None:
+        raise NotFoundError("Contact not found")
+
+    data.book.delete(name)
+    return "Contact removed."
+
+@input_error
+def change_name(args, data: AssistantData) -> str:
+    if len(args) != 2:
+        raise ValidationError("Usage: change-name <old_name> <new_name>")
+
+    old_name, new_name = args
+    record: Record = data.book.find(old_name)
+
+    if record is None:
+        raise NotFoundError("Contact not found")
+
+    data.book.delete(old_name)
+    record.name.value = new_name
+    data.book.add_record(record)
+
+    return "Name updated."
 
 @input_error
 def add_email(args, data: AssistantData) -> str:
@@ -93,7 +138,7 @@ def remove_address(args, data: AssistantData) -> str:
     return "Address removed."
 
 @input_error
-def change_contact(args, data: AssistantData) -> str:
+def change_phone(args, data: AssistantData) -> str:
     name, new_phone = args
     old_phone = args[2] if len(args) > 2 else None
     record: Record = data.book.find(name)
@@ -154,10 +199,7 @@ def show_all(_, data: AssistantData) -> str:
     if not data.book.data:
         return "No contacts found."
 
-    return "\n".join(
-        f"{record.name.value}: {'; '.join(p.value for p in record.phones)}"
-        for record in data.book.data.values()
-    )
+    return "\n".join(str(record) for record in data.book.data.values())
 
 @input_error
 def add_birthday(args, data: AssistantData) -> str:
@@ -182,6 +224,32 @@ def show_birthday(args, data: AssistantData) -> str:
         raise NotFoundError("Birthday not found")
 
     return record.birthday
+
+@input_error
+def change_birthday(args, data: AssistantData) -> str:
+    name, new_birthday = args
+    record: Record = data.book.find(name)
+
+    if record is None:
+        raise NotFoundError("Contact not found")
+
+    if record.birthday:
+        record.edit_birthday(new_birthday)
+    else:
+        record.add_birthday(new_birthday)
+
+    return "Birthday updated."
+
+@input_error
+def remove_birthday(args, data: AssistantData) -> str:
+    name = args[0]
+    record: Record = data.book.find(name)
+
+    if record is None:
+        raise NotFoundError("Contact not found")
+
+    record.remove_birthday()
+    return "Birthday removed."
 
 @input_error
 def birthdays(args, data: AssistantData) -> str:
@@ -303,18 +371,23 @@ def exit_command(_, data: AssistantData):
 
 CONTACT_COMMANDS = {
     "add": autosave(add_contact),
-    "change": autosave(change_contact),
+    "show": show_contact,
     "find": find_record,
-    "phone": show_phone,
     "all": show_all,
+    "remove": autosave(remove_contact),
+    "change-name": autosave(change_name),
+    "show-phone": show_phone,
+    "change-phone": autosave(change_phone),
+    "remove-phone": autosave(remove_phone),
     "add-email": autosave(add_email),
     "change-email": autosave(change_email),
     "remove-email": autosave(remove_email),
     "add-birthday": autosave(add_birthday),
     "show-birthday": show_birthday,
+    "change-birthday": autosave(change_birthday),
+    "remove-birthday": autosave(remove_birthday),
     "add-address": autosave(add_address),
     "change-address": autosave(change_address),
-    "remove-phone": autosave(remove_phone),
     "remove-address": autosave(remove_address),
     "birthdays": birthdays,
 }
