@@ -8,7 +8,6 @@ def main():
     assistant = load_data()
 
     print(header("Welcome to the assistant bot!"))
-    print(info("Type 'hello' for a greeting or 'exit' to quit."))
 
     while True:
         user_input = input(prompt("Enter a command: "))

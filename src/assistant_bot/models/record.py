@@ -92,6 +92,6 @@ class Record:
         birthday = (
             self.birthday.value.strftime("%d.%m.%Y") if self.birthday else "No birthday"
         )
-        address = self.address.value if self.address else "No address"
+        address = " ".join(self.address.value) if self.address else "No address"
         emails = "; ".join(e.value for e in self.emails) if self.emails else "No emails"
         return f"{self.name.value}: {phones}; Birthday: {birthday}; Address: {address}; Emails: {emails}"
