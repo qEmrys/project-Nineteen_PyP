@@ -1,6 +1,8 @@
-from datetime import datetime
-from assistant_bot.utils.errors import ValidationError
 import re
+from datetime import datetime
+
+from assistant_bot.utils.errors import ValidationError
+
 
 class Field:
     def __init__(self, value):
@@ -19,6 +21,12 @@ class Name(Field):
 
 
 class Address(Field):
+    def __init__(self, value):
+        if not value:
+            raise ValidationError("Address cannot be empty")
+
+        super().__init__(value)
+
     @property
     def value(self):
         return self._value
@@ -28,28 +36,6 @@ class Address(Field):
         if not new_value:
             raise ValidationError("Address cannot be empty")
         self._value = new_value
-
-
-class Email(Field):
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, new_value):
-        pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-        if not (isinstance(new_value, str) and re.match(pattern, new_value)):
-            raise ValidationError("Invalid email format. Use name@domain.com")
-
-        self._value = new_value
-
-
-class Address(Field):
-    def __init__(self, value):
-        if not value:
-            raise ValidationError("Address cannot be empty")
-
-        super().__init__(value)
 
 
 class Email(Field):

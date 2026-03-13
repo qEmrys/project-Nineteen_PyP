@@ -1,8 +1,8 @@
-from rich.console import Console
-from rich.table import Table
-from rich.panel import Panel
-from rich.text import Text
 from rich import box
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
 
 console = Console()
 
@@ -25,11 +25,15 @@ def print_success(text: str) -> None:
 def print_contact_panel(record) -> None:
     """Render a single contact's full details in a rich panel."""
     phones = "\n".join(p.value for p in record.phones) if record.phones else "—"
-    birthday = (
-        record.birthday.value.strftime("%d.%m.%Y") if record.birthday else "—"
+    birthday = record.birthday.value.strftime("%d.%m.%Y") if record.birthday else "—"
+    emails = (
+        "\n".join(e.value for e in record.emails)
+        if getattr(record, "emails", None)
+        else "—"
     )
-    emails = "\n".join(e.value for e in record.emails) if getattr(record, "emails", None) else "—"
-    address = " ".join(record.address.value) if getattr(record, "address", None) else "—"
+    address = (
+        " ".join(record.address.value) if getattr(record, "address", None) else "—"
+    )
 
     content = (
         f"[cyan]Phones:[/cyan]   {phones}\n"
@@ -67,8 +71,14 @@ def print_contacts_table(records: list) -> None:
         birthday = (
             record.birthday.value.strftime("%d.%m.%Y") if record.birthday else "—"
         )
-        email = "; ".join(e.value for e in record.emails) if getattr(record, "emails", None) else "—"
-        address = " ".join(record.address.value) if getattr(record, "address", None) else "—"
+        email = (
+            "; ".join(e.value for e in record.emails)
+            if getattr(record, "emails", None)
+            else "—"
+        )
+        address = (
+            " ".join(record.address.value) if getattr(record, "address", None) else "—"
+        )
 
         table.add_row(str(idx), record.name.value, phones, birthday, email, address)
 
@@ -165,47 +175,46 @@ def print_search_results(notes: list, query: str) -> None:
 
     console.print(table)
 
+
 MENU_COMMANDS = [
-    ("add <name> <+380XXXXXXXXX>",             "Add new contact"),
-    ("show <name>",                            "Show contact details"),
-    ("find <query>",                           "Search by name / phone / email"),
-    ("all",                                    "Show all contacts"),
-    ("remove <name>",                          "Delete contact"),
-    ("change-name <old> <new>",                "Rename contact"),
-    ("show-phone <name>",                      "Show phone numbers"),
-    ("change-phone <name> <old> <new>",        "Change phone number"),
-    ("remove-phone <name> <+380XXXXXXXXX>",    "Remove phone number"),
-    ("add-email <name> <user@example.com>",    "Add email address"),
-    ("change-email <name> <old> <new>",        "Change email address"),
-    ("remove-email <name> <email>",            "Remove email address"),
-    ("add-address <name> <address>",           "Add address"),
-    ("change-address <name> <address>",        "Change address"),
-    ("remove-address <name>",                  "Remove address"),
-    ("add-birthday <name> <DD.MM.YYYY>",       "Add birthday"),
-    ("show-birthday <name>",                   "Show birthday"),
-    ("change-birthday <name> <DD.MM.YYYY>",    "Change birthday"),
-    ("remove-birthday <name>",                 "Remove birthday"),
-    ("birthdays [days]",                       "Upcoming birthdays (default 7)"),
-
-    ("add-note <content>",                     "Add a note (supports #tags)"),
-    ("show-notes",                             "Show all notes"),
-    ("search-note <text>",                     "Search notes by content"),
-    ("search-note-by-id <id>",                 "Find note by ID"),
-    ("edit-note <id> <content>",               "Edit note"),
-    ("delete-note <id>",                       "Delete note"),
-
-    ("show-tags",                              "Show all available tags"),
-    ("add-tag <id> <tag>",                     "Add tag to note"),
-    ("remove-tag <id> <tag>",                  "Remove tag from note"),
-    ("search-tag <tag>",                       "Search notes by tag"),
-    ("group-tags",                             "Group notes by tags"),
-
-    ("help",                                   "Show list with available commands"),
-    ("exit / close",                           "Save and exit"),
+    ("add <name> <+380XXXXXXXXX>", "Add new contact"),
+    ("show <name>", "Show contact details"),
+    ("find <query>", "Search by name / phone / email"),
+    ("all", "Show all contacts"),
+    ("remove <name>", "Delete contact"),
+    ("change-name <old> <new>", "Rename contact"),
+    ("show-phone <name>", "Show phone numbers"),
+    ("change-phone <name> <old> <new>", "Change phone number"),
+    ("remove-phone <name> <+380XXXXXXXXX>", "Remove phone number"),
+    ("add-email <name> <user@example.com>", "Add email address"),
+    ("change-email <name> <old> <new>", "Change email address"),
+    ("remove-email <name> <email>", "Remove email address"),
+    ("add-address <name> <address>", "Add address"),
+    ("change-address <name> <address>", "Change address"),
+    ("remove-address <name>", "Remove address"),
+    ("add-birthday <name> <DD.MM.YYYY>", "Add birthday"),
+    ("show-birthday <name>", "Show birthday"),
+    ("change-birthday <name> <DD.MM.YYYY>", "Change birthday"),
+    ("remove-birthday <name>", "Remove birthday"),
+    ("birthdays [days]", "Upcoming birthdays (default 7)"),
+    ("add-note <content>", "Add a note (supports #tags)"),
+    ("all-notes", "Show all notes"),
+    ("search-note <text>", "Search notes by content"),
+    ("show-note <id>", "Show note by ID"),
+    ("edit-note <id> <content>", "Edit note"),
+    ("delete-note <id>", "Delete note"),
+    ("show-tags", "Show all available tags"),
+    ("add-tag <id> <tag>", "Add tag to note"),
+    ("remove-tag <id> <tag>", "Remove tag from note"),
+    ("search-tag <tag>", "Search notes by tag"),
+    ("group-tags", "Group notes by tags"),
+    ("help", "Show list with available commands"),
+    ("exit / close", "Save and exit"),
 ]
- 
+
+
 def print_main_menu() -> None:
-    #Render all commands as a rich table.
+    """Render the main menu with available commands."""
     table = Table(
         title="🤖 Available commands:",
         box=box.ROUNDED,
@@ -215,8 +224,8 @@ def print_main_menu() -> None:
     )
     table.add_column("Command", style="bold yellow", no_wrap=True, min_width=42)
     table.add_column("Description", style="white", min_width=32)
- 
+
     for cmd, desc in MENU_COMMANDS:
         table.add_row(cmd, desc)
- 
+
     console.print(table)

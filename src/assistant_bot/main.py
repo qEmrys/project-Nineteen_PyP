@@ -1,7 +1,8 @@
+from assistant_bot.handlers.commands_registry import COMMANDS
 from assistant_bot.storage.file_storage import load_data
-from assistant_bot.handlers.commands import COMMANDS
-from assistant_bot.utils.parser import parse_input
 from assistant_bot.utils.design import console, print_main_menu
+from assistant_bot.utils.parser import parse_input
+
 
 def main():
     assistant = load_data()
