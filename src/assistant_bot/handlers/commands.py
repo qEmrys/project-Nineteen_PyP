@@ -26,8 +26,11 @@ def add_contact(args, data: AssistantData) -> str:
 
     if record is None:
         record = Record(name)
-        data.book.add_record(record)
+    
     record.add_phone(phone)
+    
+    if data.book.find(name) is None:
+        data.book.add_record(record)
 
     return "Contact added."
 
@@ -139,15 +142,17 @@ def remove_address(args, data: AssistantData) -> str:
 
 @input_error
 def change_phone(args, data: AssistantData) -> str:
-    name, new_phone = args
-    old_phone = args[2] if len(args) > 2 else None
+    if len(args) != 3:
+        raise ValidationError("Usage: change-phone <name> <old_phone> <new_phone>")
+
+    name, old_phone, new_phone = args
     record: Record = data.book.find(name)
 
     if record is None:
         raise NotFoundError("Contact not found")
 
     if record.phones:
-        record.edit_phone(new_phone, old_phone)
+        record.edit_phone(old_phone, new_phone)
     else:
         record.add_phone(new_phone)
 
