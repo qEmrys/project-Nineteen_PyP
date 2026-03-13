@@ -104,7 +104,7 @@ def add_note(args: list, data: AssistantData) -> str:
     # All words after the command become the note content.
     # ID is assigned automatically as a sequential number.
     if not args:
-        raise ValueError
+        raise ValidationError("Usage: add-note <content>")
 
     content = " ".join(args)
 
@@ -141,12 +141,53 @@ def show_notes(args: list, data: AssistantData) -> str:
     except ValueError:
         return "Note id must be a number."
 
-    note = data.notes.find(note_id)
+    note = data.notes.find_by_id(note_id)
 
     if note is None:
         raise NotFoundError(f"Note with id {note_id} not found")
 
     return str(note)
+
+@input_error
+def search_note(args: list, data: AssistantData) -> str:
+    if not args:
+        raise ValidationError("Usage: search-note <search string>")
+
+    search_str = " ".join(args)
+    found_notes = data.notes.find_by_content(search_str)
+
+    if not found_notes:
+        return "No notes found matching the search criteria."
+
+    return "\n".join(note.short_view() for note in found_notes)
+
+@input_error
+def edit_note(args: list, data: AssistantData) -> str:
+    if len(args) < 2:
+        raise ValidationError("Usage: edit-note <id> <new content>")
+
+    try:
+        note_id = int(args[0])
+    except ValueError:
+        raise ValidationError("Note id must be a number.")
+
+    new_content = " ".join(args[1:])
+    note = data.notes.edit_note(note_id, new_content)
+
+    return f"Note {note.id} updated."
+
+@input_error
+def delete_note(args: list, data: AssistantData) -> str:
+    if len(args) != 1:
+        raise ValidationError("Usage: delete-note <id>")
+
+    try:
+        note_id = int(args[0])
+    except ValueError:
+        raise ValidationError("Note id must be a number.")
+
+    data.notes.delete_note(note_id)
+    return f"Note {note_id} deleted."
 
 def exit_command(_, data: AssistantData):
     save_data(data)
@@ -167,6 +208,9 @@ CONTACT_COMMANDS = {
 NOTE_COMMANDS = {
     "add-note": autosave(add_note),
     "show-notes": show_notes,
+    "search-note": search_note,
+    "edit-note": autosave(edit_note),
+    "delete-note": autosave(delete_note),
 }
 
 SYSTEM_COMMANDS = {
