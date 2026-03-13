@@ -1,13 +1,13 @@
 from assistant_bot.storage.file_storage import load_data
 from assistant_bot.handlers.commands import COMMANDS
 from assistant_bot.utils.parser import parse_input
-from assistant_bot.utils.design import console
-
+from assistant_bot.utils.design import console, print_main_menu
 
 def main():
     assistant = load_data()
 
     console.print("[bold magenta]Welcome to the assistant bot![/bold magenta]")
+    print_main_menu()
     console.print("[dim]Type 'hello' for a greeting or 'exit' to quit.[/dim]")
 
     while True:
@@ -20,4 +20,7 @@ def main():
             if result is not None:
                 console.print(str(result))
         else:
-            console.print("[bold red]Invalid command.[/bold red]")
+            console.print(
+                f"[bold red]Unknown command:[/bold red] [yellow]{command}[/yellow]  "
+                "[dim](type [bold]help[/bold] to see all commands)[/dim]"
+            )

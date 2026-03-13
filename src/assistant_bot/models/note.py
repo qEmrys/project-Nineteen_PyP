@@ -1,4 +1,5 @@
 from assistant_bot.models.fields import NoteContent
+from datetime import datetime
 
 
 class Note:
@@ -8,11 +9,18 @@ class Note:
     # NoteContent field is defined in the shared fields.py module.
 
 
-    def __init__(self, note_id: int, content: str = "", tags: list[str] = None):
+    def __init__(self, note_id: int, content: str = "", created_at: datetime = None, tags: list[str] = None):
         # Unique sequential number assigned by NoteBook on creation
         self.id = note_id
+        self.created_at = created_at or datetime.now()
         self.content = NoteContent(content)
         self.tags = tags or []
+
+    def __getattr__(self, name: str):
+        # Fallback for old pickled notes that don't have created_at
+        if name == "created_at":
+            return None
+        raise AttributeError(name)
 
     def short_view(self) -> str:
         return f"{self.id}: {self.content}"

@@ -124,12 +124,15 @@ def print_notes_table(notes: list) -> None:
         header_style="bold cyan",
     )
     table.add_column("ID", style="dim", width=6, justify="right")
+    table.add_column("Created", style="cyan", justify="center", min_width=16)
     table.add_column("Preview", style="white")
 
     for note in notes:
         text = note.content.value
         preview = (text[:60] + "…") if len(text) > 60 else text
-        table.add_row(str(note.id), preview)
+        created_at = getattr(note, "created_at", None)
+        created = created_at.strftime("%d.%m.%Y %H:%M") if created_at else "—"
+        table.add_row(str(note.id), created, preview)
 
     console.print(table)
 
@@ -160,4 +163,52 @@ def print_search_results(notes: list, query: str) -> None:
     for note in notes:
         table.add_row(str(note.id), note.content.value)
 
+    console.print(table)
+
+MENU_COMMANDS = [
+    ("add <name> <+380XXXXXXXXX>",             "Add new contact"),
+    ("show <name>",                            "Show contact details"),
+    ("find <query>",                           "Search by name / phone / email"),
+    ("all",                                    "Show all contacts"),
+    ("remove <name>",                          "Delete contact"),
+    ("change-name <old> <new>",                "Rename contact"),
+    ("show-phone <name>",                      "Show phone numbers"),
+    ("change-phone <name> <old> <new>",        "Change phone number"),
+    ("remove-phone <name> <+380XXXXXXXXX>",    "Remove phone number"),
+    ("add-email <name> <user@example.com>",    "Add email address"),
+    ("change-email <name> <old> <new>",        "Change email address"),
+    ("remove-email <name> <email>",            "Remove email address"),
+    ("add-address <name> <address>",           "Add address"),
+    ("change-address <name> <address>",        "Change address"),
+    ("remove-address <name>",                  "Remove address"),
+    ("add-birthday <name> <DD.MM.YYYY>",       "Add birthday"),
+    ("show-birthday <name>",                   "Show birthday"),
+    ("change-birthday <name> <DD.MM.YYYY>",    "Change birthday"),
+    ("remove-birthday <name>",                 "Remove birthday"),
+    ("birthdays [days]",                       "Upcoming birthdays (default 7)"),
+    ("add-note <content>",                     "Add a note"),
+    ("show-notes",                             "Show all notes"),
+    ("search-note <text>",                     "Search notes by content"),
+    ("search-note-by-id <id>",                 "Find note by ID"),
+    ("edit-note <id> <content>",               "Edit note"),
+    ("delete-note <id>",                       "Delete note"),
+    ("help",                                   "Show list with available commands"),
+    ("exit / close",                           "Save and exit"),
+]
+ 
+def print_main_menu() -> None:
+    #Render all commands as a rich table.
+    table = Table(
+        title="🤖 Available commands:",
+        box=box.ROUNDED,
+        show_lines=True,
+        title_style="bold magenta",
+        header_style="bold cyan",
+    )
+    table.add_column("Command", style="bold yellow", no_wrap=True, min_width=42)
+    table.add_column("Description", style="white", min_width=32)
+ 
+    for cmd, desc in MENU_COMMANDS:
+        table.add_row(cmd, desc)
+ 
     console.print(table)
