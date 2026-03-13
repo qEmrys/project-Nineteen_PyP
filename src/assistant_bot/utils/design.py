@@ -124,12 +124,15 @@ def print_notes_table(notes: list) -> None:
         header_style="bold cyan",
     )
     table.add_column("ID", style="dim", width=6, justify="right")
+    table.add_column("Created", style="cyan", justify="center", min_width=16)
     table.add_column("Preview", style="white")
 
     for note in notes:
         text = note.content.value
         preview = (text[:60] + "…") if len(text) > 60 else text
-        table.add_row(str(note.id), preview)
+        created_at = getattr(note, "created_at", None)
+        created = created_at.strftime("%d.%m.%Y %H:%M") if created_at else "—"
+        table.add_row(str(note.id), created, preview)
 
     console.print(table)
 
