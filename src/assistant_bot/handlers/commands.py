@@ -323,16 +323,24 @@ def birthdays(args, data: AssistantData) -> str:
 
 @input_error
 def add_note(args: list, data: AssistantData) -> str:
-
-    # Command: add-note <content...>
-    # All words after the command become the note content.
-    # ID is assigned automatically as a sequential number.
     if not args:
         raise ValidationError("Usage: add-note <content>")
 
-    content = " ".join(args)
+    text_parts = []
+    tags = []
 
+    for arg in args:
+        if arg.startswith("#") and len(arg) > 1:
+            tags.append(arg[1:])
+        else:
+            text_parts.append(arg)
+
+    content = " ".join(text_parts)
     note = data.notes.add_note(content)
+    
+    for tag in tags:
+        note.add_tag(tag)
+        
     print_success(f"Note added with id: {note.id}.")
     return
 
@@ -410,6 +418,90 @@ def delete_note(args: list, data: AssistantData) -> str:
     print_success(f"Note {note_id} deleted.")
     return
 
+@input_error
+def show_tags(args: list, data: AssistantData) -> str:
+    if args:
+        raise ValidationError("Usage: show-tags")
+
+    tags = data.notes.get_all_tags()
+
+    if not tags:
+        print_warning("No tags found.")
+        return
+
+    print_success("Tags:")
+    for tag in tags:
+        print(f"- {tag}")
+
+@input_error
+def add_tag(args: list, data: AssistantData) -> str:
+    if len(args) != 2:
+        raise ValidationError("Usage: add-tag <note_id> <tag>")
+
+    try:
+        note_id = int(args[0])
+    except ValueError:
+        raise ValidationError("Note id must be a number.")
+
+    tag = args[1]
+    note = data.notes.find_by_id(note_id)
+
+    if not note:
+        raise NotFoundError("Note not found.")
+
+    note.add_tag(tag)
+    print_success(f"Tag '{tag}' added to note {note_id}.")
+    return
+
+@input_error
+def remove_tag(args: list, data: AssistantData) -> str:
+    if len(args) != 2:
+        raise ValidationError("Usage: remove-tag <note_id> <tag>")
+
+    try:
+        note_id = int(args[0])
+    except ValueError:
+        raise ValidationError("Note id must be a number.")
+
+    tag = args[1]
+    note = data.notes.find_by_id(note_id)
+
+    if not note:
+        raise NotFoundError("Note not found.")
+
+    note.remove_tag(tag)
+    print_success(f"Tag '{tag}' removed from note {note_id}.")
+    return
+
+@input_error
+def search_note_by_tag(args: list, data: AssistantData) -> str:
+    if len(args) != 1:
+        raise ValidationError("Usage: search-tag <tag>")
+
+    tag = args[0]
+    found_notes = data.notes.search_by_tag(tag)
+
+    if not found_notes:
+        print_warning("No notes found with the given tag.")
+        return
+
+    print_search_results(found_notes, tag)
+
+@input_error
+def group_by_tags(args: list, data: AssistantData) -> None:
+    if args:
+        raise ValidationError("Usage: group-tags")
+
+    tag_groups = data.notes.group_by_tags()
+
+    if not tag_groups:
+        print_warning("No notes found.")
+        return
+
+    for tag, notes in sorted(tag_groups.items()):
+        print_success(f"Tag: {tag}")
+        print_notes_table(notes)
+
 def exit_command(_, data: AssistantData):
     save_data(data)
     print_success("Good bye!")
@@ -446,6 +538,11 @@ NOTE_COMMANDS = {
     "search-note-by-id": search_note_by_id,
     "edit-note": autosave(edit_note),
     "delete-note": autosave(delete_note),
+    "show-tags": show_tags,
+    "add-tag": autosave(add_tag),
+    "remove-tag": autosave(remove_tag),
+    "search-tag": search_note_by_tag,
+    "group-tags": group_by_tags,
 }
 
 SYSTEM_COMMANDS = {

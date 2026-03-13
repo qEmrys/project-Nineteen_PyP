@@ -9,11 +9,12 @@ class Note:
     # NoteContent field is defined in the shared fields.py module.
 
 
-    def __init__(self, note_id: int, content: str = "", created_at: datetime = None):
+    def __init__(self, note_id: int, content: str = "", created_at: datetime = None, tags: list[str] = None):
         # Unique sequential number assigned by NoteBook on creation
         self.id = note_id
         self.created_at = created_at or datetime.now()
         self.content = NoteContent(content)
+        self.tags = tags or []
 
     def __getattr__(self, name: str):
         # Fallback for old pickled notes that don't have created_at
@@ -27,6 +28,13 @@ class Note:
     def edit_content(self, new_content: str):
         self.content = NoteContent(new_content)
 
+    def add_tag(self, tag: str):
+        if tag not in self.tags:
+            self.tags.append(tag.lower())
+
+    def remove_tag(self, tag: str):
+        self.tags = [t for t in self.tags if t != tag.lower()]
+
     def __str__(self) -> str:
         separator = "-" * 30
         return (
@@ -34,4 +42,5 @@ class Note:
             f"# {self.id}\n"
             f"{separator}\n"
             f"{self.content or '(empty)'}\n"
+            f"Tags: {', '.join(self.tags) if self.tags else '(none)'}\n"
         )

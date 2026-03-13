@@ -186,12 +186,20 @@ MENU_COMMANDS = [
     ("change-birthday <name> <DD.MM.YYYY>",    "Change birthday"),
     ("remove-birthday <name>",                 "Remove birthday"),
     ("birthdays [days]",                       "Upcoming birthdays (default 7)"),
-    ("add-note <content>",                     "Add a note"),
+
+    ("add-note <content>",                     "Add a note (supports #tags)"),
     ("show-notes",                             "Show all notes"),
     ("search-note <text>",                     "Search notes by content"),
     ("search-note-by-id <id>",                 "Find note by ID"),
     ("edit-note <id> <content>",               "Edit note"),
     ("delete-note <id>",                       "Delete note"),
+
+    ("show-tags",                              "Show all available tags"),
+    ("add-tag <id> <tag>",                     "Add tag to note"),
+    ("remove-tag <id> <tag>",                  "Remove tag from note"),
+    ("search-tag <tag>",                       "Search notes by tag"),
+    ("group-tags",                             "Group notes by tags"),
+
     ("help",                                   "Show list with available commands"),
     ("exit / close",                           "Save and exit"),
 ]
