@@ -159,10 +159,10 @@ def remove_tag(args: list, data: AssistantData) -> str:
 
     tag = args[1]
     note = data.notes.find_by_id(note_id)
-
     if not note:
         raise NotFoundError("Note not found.")
-
+    if tag not in note.tags:
+        raise NotFoundError("Tag not found in the note.")
     note.remove_tag(tag)
     print_success(f"Tag '{tag}' removed from note {note_id}.")
     return
