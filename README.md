@@ -33,6 +33,7 @@ CLI персональний асистент для управління кон
    ```bash
    git clone <repository-url>
    cd project-Nineteen_PyP
+   pip install -e <repository-path>.
    ```
 
 2. **Створіть та активуйте віртуальне середовище (за потреби):**
@@ -54,7 +55,9 @@ CLI персональний асистент для управління кон
 ## Запуск застосунку
 
 ```bash
-python run.py
+assistant
+or
+python -m assistant_bot
 ```
 
 Бот привітає вас і чекатиме на введення команд:
