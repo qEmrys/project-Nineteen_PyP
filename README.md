@@ -28,35 +28,52 @@ CLI персональний асистент для управління кон
 
 ## Встановлення
 
-1. **Клонуйте репозиторій:**
+1. **Клонуйте репозиторій**
 
-   ```bash
-   git clone <repository-url>
-   cd project-Nineteen_PyP
-   pip install -e <repository-path>.
-   ```
+```bash
+git clone <repository-url>
+cd project-Nineteen_PyP
+```
 
-2. **Створіть та активуйте віртуальне середовище (за потреби):**
+2. **Створіть та активуйте віртуальне середовище**
 
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate        # macOS / Linux
-   .venv\Scripts\activate           # Windows
-   ```
+```bash
+python -m venv .venv
+```
 
-3. **Встановіть залежності:**
+**macOS / Linux**
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+source .venv/bin/activate
+```
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
+```
+
+3. **Встановіть проєкт**
+
+```bash
+pip install -e .
+```
 
 ---
 
 ## Запуск застосунку
 
+Запустити застосунок можна двома способами.
+
+**Через CLI-команду:**
+
 ```bash
 assistant
-or
+```
+
+**Або як Python-модуль:**
+
+```bash
 python -m assistant_bot
 ```
 
@@ -152,7 +169,8 @@ show John
 | Команда | Аргументи | Опис |
 |---------|-----------|------|
 | `add-note` | `<content...>` | Створити нову нотатку (ID присвоюється автоматично). Підтримує теги через `#tag` |
-| `show-notes` | — | Показати список усіх нотаток з попереднім переглядом, потім запитати ID для повного перегляду |
+| `all-notes` | — | Показати список усіх нотаток |
+| `show-note` | `<id>` | Показати повний вміст нотатки |
 | `search-note` | `<query...>` | Знайти нотатки, що містять рядок пошуку |
 | `edit-note` | `<id> <new content...>` | Замінити вміст нотатки |
 | `delete-note` | `<id>` | Остаточно видалити нотатку |
