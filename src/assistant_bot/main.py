@@ -1,6 +1,7 @@
 from assistant_bot.handlers.commands_registry import COMMANDS
 from assistant_bot.storage.file_storage import load_data
-from assistant_bot.utils.design import console, print_main_menu
+from assistant_bot.ui.output import console, print_main_menu
+from assistant_bot.ui.renderer import render
 from assistant_bot.utils.parser import parse_input
 
 
@@ -18,8 +19,10 @@ def main():
 
         if handler:
             result = handler(args, assistant)
-            if result is not None:
-                console.print(str(result))
+            render(result)
+
+            if result and result.get("type") == "exit":
+                break
         else:
             console.print(
                 f"[bold red]Unknown command:[/bold red] [yellow]{command}[/yellow]  "
