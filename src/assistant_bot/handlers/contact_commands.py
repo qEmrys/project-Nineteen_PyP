@@ -1,14 +1,6 @@
 from assistant_bot.models.assistant_data import AssistantData
 from assistant_bot.models.record import Record
 from assistant_bot.utils.decorators import autosave, input_error
-from assistant_bot.utils.design import (
-    print_birthdays_table,
-    print_contact_panel,
-    print_contacts_table,
-    print_phones_table,
-    print_success,
-    print_warning,
-)
 from assistant_bot.utils.errors import NotFoundError, ValidationError
 
 """Contact management commands: add, show, find, all, remove, change-name, show-phone"""
@@ -25,7 +17,11 @@ def show_contact(args, data: AssistantData) -> None:
     if record is None:
         raise NotFoundError("Contact not found")
 
-    print_contact_panel(record)
+    return {
+        "status": "success",
+        "type": "contact_detail",
+        "data": record
+    }
 
 
 @input_error
@@ -43,8 +39,11 @@ def add_contact(args, data: AssistantData) -> str:
     if data.book.find(name) is None:
         data.book.add_record(record)
 
-    print_success("Contact added.")
-    return
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Contact added."
+    }
 
 
 @input_error
@@ -59,8 +58,11 @@ def remove_contact(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     data.book.delete(name)
-    print_success("Contact removed.")
-    return
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Contact removed."
+    }
 
 
 @input_error
@@ -78,8 +80,11 @@ def change_name(args, data: AssistantData) -> str:
     record.name.value = new_name
     data.book.add_record(record)
 
-    print_success("Name updated.")
-    return
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Name updated."
+    }
 
 
 """Email management commands: add-email, change-email, remove-email"""
@@ -98,8 +103,11 @@ def add_email(args, data: AssistantData) -> str:
         data.book.add_record(record)
     record.add_email(email)
 
-    print_success("Email added.")
-    return
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Email added."
+    }
 
 
 @input_error
@@ -115,8 +123,11 @@ def change_email(args, data: AssistantData) -> str:
 
     record.edit_email(old_email, new_email)
 
-    print_success("Email updated.")
-    return
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Email updated."
+    }
 
 
 @input_error
@@ -131,8 +142,12 @@ def remove_email(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     record.remove_email(email)
-    print_success("Email removed.")
-    return
+    
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Email removed."
+    }
 
 
 """Address management commands: add-address, change-address, remove-address"""
@@ -150,8 +165,12 @@ def add_address(args, data: AssistantData) -> str:
         record = Record(name)
         data.book.add_record(record)
     record.add_address(address_parts)
-    print_success("Address added.")
-    return
+    
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Address added."
+    }
 
 
 @input_error
@@ -170,8 +189,11 @@ def change_address(args, data: AssistantData) -> str:
     else:
         record.add_address(address_parts)
 
-    print_success("Address updated.")
-    return
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Address updated."
+    }
 
 
 @input_error
@@ -186,8 +208,12 @@ def remove_address(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     record.remove_address()
-    print_success("Address removed.")
-    return
+    
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Address removed."
+    }
 
 
 """Phone management commands: show-phone, change-phone, remove-phone"""
@@ -208,8 +234,11 @@ def change_phone(args, data: AssistantData) -> str:
     else:
         record.add_phone(new_phone)
 
-    print_success("Contact updated.")
-    return
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Contact updated."
+    }
 
 
 @input_error
@@ -222,7 +251,11 @@ def show_phone(args, data: AssistantData) -> str:
     if record is None:
         raise NotFoundError("Contact not found")
 
-    print_phones_table(record)
+    return {
+        "status": "success",
+        "type": "phones",
+        "data": record
+    }
 
 
 @input_error
@@ -236,8 +269,12 @@ def remove_phone(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     record.remove_phone(phone)
-    print_success("Phone removed.")
-    return
+
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Phone removed."
+    }
 
 
 """Search commands: find, all"""
@@ -256,20 +293,33 @@ def find_record(args, data: AssistantData) -> None:
     )
 
     if not results:
-        print_warning("No matching contacts found.")
-        return
+        return {
+            "status": "warning",
+            "type": "message",
+            "message": "No matching contacts found."
+        }
 
-    print_contacts_table(results)
+    return {
+        "status": "success",
+        "type": "contacts_list",
+        "data": results
+    }
 
 
 @input_error
 def show_all(_, data: AssistantData) -> None:
     if not data.book.data:
-        print_warning("No contacts found.")
-        return
+        return {
+            "status": "warning",
+            "type": "message",
+            "message": "No contacts found."
+        }
 
-    print_contacts_table(list(data.book.data.values()))
-
+    return {
+        "status": "success",
+        "type": "contacts_list",
+        "data": list(data.book.data.values())
+    }
 
 """Name management command: change-name"""
 
@@ -286,8 +336,12 @@ def add_birthday(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     record.add_birthday(birthday)
-    print_success("Birthday added.")
-    return
+    
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Birthday added."
+    }
 
 
 @input_error
@@ -304,7 +358,11 @@ def show_birthday(args, data: AssistantData) -> str:
     if record.birthday is None:
         raise NotFoundError("Birthday not found")
 
-    return record.birthday
+    return {
+        "status": "success",
+        "type": "birthday",
+        "data": record.birthday
+    }
 
 
 @input_error
@@ -322,8 +380,11 @@ def change_birthday(args, data: AssistantData) -> str:
     else:
         record.add_birthday(new_birthday)
 
-    print_success("Birthday updated.")
-    return
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Birthday updated."
+    }
 
 
 @input_error
@@ -337,8 +398,12 @@ def remove_birthday(args, data: AssistantData) -> str:
         raise NotFoundError("Contact not found")
 
     record.remove_birthday()
-    print_success("Birthday removed.")
-    return
+    
+    return {
+        "status": "success",
+        "type": "message",
+        "message": "Birthday removed."
+    }
 
 
 @input_error
@@ -352,10 +417,18 @@ def birthdays(args, data: AssistantData) -> str:
     upcoming_birthdays = data.book.get_upcoming_birthdays(days)
 
     if not upcoming_birthdays:
-        print_warning(f"No birthdays in the next {days} day(s).")
-        return
+        return {
+            "status": "warning",
+            "type": "message",
+            "message": f"No birthdays in the next {days} day(s)."
+        }
 
-    print_birthdays_table(upcoming_birthdays, days)
+    return {
+        "status": "success",
+        "type": "birthdays",
+        "data": upcoming_birthdays,
+        "meta": {"days": days}
+    }
 
 
 CONTACT_COMMANDS = {

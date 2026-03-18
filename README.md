@@ -225,31 +225,33 @@ delete-note 1
 ## Структура проєкту
 
 ```
-run.py                          # Точка входу (запускає CLI)
+run.py                           # Точка входу (запускає CLI)
 data/
-└── assistant.pkl               # Файл збережених даних (pickle)
+└── assistant.pkl                # Файл збережених даних (pickle)
 src/
 └── assistant_bot/
     ├── __init__.py
-    ├── main.py                 # Головний цикл CLI (REPL)
+    ├── main.py                  # Головний цикл CLI (REPL)
     ├── handlers/
     │   ├── commands_registry.py # Реєстрація та об'єднання всіх команд
     │   ├── contact_commands.py  # Команди для роботи з контактами
     │   ├── note_commands.py     # Команди для нотаток та тегів
     │   └── system_commands.py   # Системні команди (help, exit тощо)
+    ├── ui/                      # UI шар (CLI)
+    │   ├── renderer.py          # Централізований render(result)
+    │   └── output.py            # Вивід через Rich (таблиці, панелі, повідомлення)
     ├── models/
-    │   ├── fields.py           # Класи полів з валідацією
-    │   │                       # (Name, Phone, Email, Address, Birthday, NoteContent)
-    │   ├── record.py           # Модель контакту (Record)
-    │   ├── address_book.py     # Контейнер AddressBook (колекція контактів)
-    │   ├── note.py             # Модель нотатки (Note: id, content, tags)
-    │   ├── note_book.py        # Контейнер NoteBook (колекція нотаток)
-    │   └── assistant_data.py   # Об'єднана модель даних (AddressBook + NoteBook)
+    │   ├── fields.py            # Класи полів з валідацією
+    │   │                        # (Name, Phone, Email, Address, Birthday, NoteContent)
+    │   ├── record.py            # Модель контакту (Record)
+    │   ├── address_book.py      # Контейнер AddressBook (колекція контактів)
+    │   ├── note.py              # Модель нотатки (Note: id, content, tags)
+    │   ├── note_book.py         # Контейнер NoteBook (колекція нотаток)
+    │   └── assistant_data.py    # Об'єднана модель даних (AddressBook + NoteBook)
     ├── storage/
-    │   └── file_storage.py     # Завантаження і збереження даних через pickle
+    │   └── file_storage.py      # Завантаження і збереження даних через pickle
     └── utils/
-        ├── decorators.py       # Декоратори (@input_error, @autosave)
-        ├── design.py           # UI-вивід через Rich (таблиці, панелі)
-        ├── errors.py           # Користувацькі винятки (ValidationError, NotFoundError)
-        └── parser.py           # Парсер команд користувача
+        ├── decorators.py        # Декоратори (@input_error, @autosave)
+        ├── errors.py            # Користувацькі винятки (ValidationError, NotFoundError)
+        └── parser.py            # Парсер команд користувача
 ```
